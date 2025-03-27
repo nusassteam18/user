@@ -58,6 +58,11 @@ public class UserService {
         return userOptional.orElse(null);
     }
 
+    public User getUserByEmail(String email) {
+        Optional<User> userOptional = userRepository.findUserByEmail(email);
+        return userOptional.orElse(null);
+    }
+
     public User getUser(Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
 

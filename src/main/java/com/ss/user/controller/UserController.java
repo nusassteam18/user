@@ -2,6 +2,7 @@ package com.ss.user.controller;
 
 import com.ss.user.requestDTO.LoginRequest;
 import com.ss.user.requestDTO.RegisterRequest;
+import com.ss.user.requestDTO.ForgotPassRequest;
 import com.ss.user.service.UserService;
 import com.ss.user.entity.User;
 import org.slf4j.Logger;
@@ -54,6 +55,14 @@ public class UserController {
     public ResponseEntity<RegisterRequest> registerUser(@RequestBody RegisterRequest rq) {
         userService.createUser(rq);
         return ResponseEntity.ok(rq);
+    }
+
+    @PostMapping("/forgotPass")
+    public ResponseEntity<User> registerUser(@RequestBody ForgotPassRequest rq) {
+        User user = userService.getUserByEmail(rq.getEmail());
+        if(user == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping
