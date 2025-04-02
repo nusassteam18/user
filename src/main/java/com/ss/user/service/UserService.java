@@ -1,5 +1,6 @@
 package com.ss.user.service;
 
+import com.ss.user.repository.CustomerRepository;
 import com.ss.user.requestDTO.RegisterRequest;
 import com.ss.user.entity.User;
 import com.ss.user.repository.UserRepository;
@@ -22,9 +23,12 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    private final CustomerRepository customerRepository;
+
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, CustomerRepository customerRepository) {
         this.userRepository = userRepository;
+        this.customerRepository = customerRepository;
     }
 
     @Autowired
@@ -48,13 +52,20 @@ public class UserService {
         if(userOptional.isPresent())
             throw new IllegalStateException("User email already exist");
 
-        User user = new User(null, rq.getFirstName(), rq.getLastName(), rq.getEmail(), rq.getPassword(), Objects.equals(rq.getRole(), "Customer") ? User.Role.Customer : User.Role.Admin);
+        User user = new User(null, rq.getFirstName(), rq.getLastName(), rq.getEmail(), rq.getPassword());
         userRepository.save(user);
     }
 
     public User getUserByEmailAndPassword(String email, String password) {
-        Optional<User> userOptional = userRepository.findUserByEmailAndPassword(email, password);
+        User user = userRepository.findUserByEmailAndPassword(email, password);
+        if(user == null)
+            return null;
 
+        return user;
+    }
+
+    public User getUserByEmail(String email) {
+        Optional<User> userOptional = userRepository.findUserByEmail(email);
         return userOptional.orElse(null);
     }
 

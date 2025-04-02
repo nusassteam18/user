@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 
 @Entity
 @Table
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.CHAR, length = 1)
+@DiscriminatorValue("U")
 public class User {
     @Id
     @SequenceGenerator(
@@ -25,9 +28,11 @@ public class User {
     private String email;
     @Column(nullable = false)
     private String password;
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('Admin', 'Customer') NOT NULL DEFAULT 'Customer' CHECK (role IN ('Admin', 'Customer'))")
-    private Role role;
+//    @Enumerated(EnumType.STRING)
+//    @Column(columnDefinition = "ENUM('Admin', 'Customer') NOT NULL DEFAULT 'Customer' CHECK (role IN ('Admin', 'Customer'))")
+//    private Role role;
+    @Column(insertable = false, updatable = false)
+    private char role;
 
     public enum Role {
         Admin,
@@ -37,16 +42,27 @@ public class User {
     public User() {
     }
 
-    public User(Long userId, String firstName, String lastName, String email, String password, Role role) {
+    public User(Long userId, String firstName, String lastName, String email, String password) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
-        this.role = role;
+//        this.role = role;
+    }
+
+    public User(String firstName, String lastName, String email, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
     }
 
     // Getters and setters
+    public char getRole() {
+        return role;
+    }
+
     public Long getUserId() {
         return userId;
     }
@@ -87,23 +103,36 @@ public class User {
         this.password = password;
     }
 
-    public Role getRole() {
-        return role;
-    }
+//    public Role getRole() {
+//        return role;
+//    }
+//
+//    public void setRole(Role role) {
+//        this.role = role;
+//    }
 
-    public void setRole(Role role) {
-        this.role = role;
-    }
+//    @Override
+//    public String toString() {
+//        return "User{" +
+//                "userId=" + userId +
+//                ", firstName='" + firstName + '\'' +
+//                ", lastName='" + lastName + '\'' +
+//                ", email='" + email + '\'' +
+//                ", password='" + password + '\'' +
+//                ", role='" + role + '\'' +
+//                '}';
+//    }
+
 
     @Override
     public String toString() {
         return "User{" +
-                "userId=" + userId +
+                "role=" + role +
+                ", userId=" + userId + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", role='" + role + '\'' +
                 '}';
     }
 }

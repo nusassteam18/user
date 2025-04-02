@@ -1,7 +1,10 @@
 package com.ss.user.controller;
 
+import com.ss.user.entity.Admin;
+import com.ss.user.entity.Customer;
 import com.ss.user.requestDTO.LoginRequest;
 import com.ss.user.requestDTO.RegisterRequest;
+import com.ss.user.requestDTO.ForgotPassRequest;
 import com.ss.user.service.UserService;
 import com.ss.user.entity.User;
 import org.slf4j.Logger;
@@ -26,6 +29,39 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
+        User user = userService.getUserByEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword());
+        if (user != null) {
+            if(user instanceof Customer)
+                return ResponseEntity.ok(((Customer) user));
+            else
+                return ResponseEntity.ok((Admin) user);
+        }
+
+
+        return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<RegisterRequest> registerUser(@RequestBody RegisterRequest rq) {
+        userService.createUser(rq);
+        return ResponseEntity.ok(rq);
+    }
+
+    @PostMapping("/forgotPass")
+    public ResponseEntity<User> registerUser(@RequestBody ForgotPassRequest rq) {
+        User user = userService.getUserByEmail(rq.getEmail());
+        if(user == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<User>> getUsers() {
+        // Fetch user details from the database
+        return ResponseEntity.ok(userService.getUsers());
+    }
 
     @GetMapping("/test/{userId}")
     public ResponseEntity<String> callRestaurantsApi(@PathVariable Long userId) {
@@ -38,28 +74,6 @@ public class UserController {
     public ResponseEntity<User> getUser(@PathVariable Long userId) {
         // Fetch user details from the database
         return ResponseEntity.ok(userService.getUser(userId));
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<User> loginUser(@RequestBody LoginRequest loginRequest) {
-        User user = userService.getUserByEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword());
-
-        if (user != null)
-            return ResponseEntity.ok(user);
-
-        return ResponseEntity.notFound().build();
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<RegisterRequest> registerUser(@RequestBody RegisterRequest rq) {
-        userService.createUser(rq);
-        return ResponseEntity.ok(rq);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<User>> getUsers() {
-        // Fetch user details from the database
-        return ResponseEntity.ok(userService.getUsers());
     }
 
     @PostMapping
