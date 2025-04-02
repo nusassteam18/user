@@ -1,5 +1,7 @@
 package com.ss.user.controller;
 
+import com.ss.user.entity.Admin;
+import com.ss.user.entity.Customer;
 import com.ss.user.requestDTO.LoginRequest;
 import com.ss.user.requestDTO.RegisterRequest;
 import com.ss.user.requestDTO.ForgotPassRequest;
@@ -27,26 +29,16 @@ public class UserController {
         this.userService = userService;
     }
 
-
-    @GetMapping("/test/{userId}")
-    public ResponseEntity<String> callRestaurantsApi(@PathVariable Long userId) {
-        String str = userService.callRestaurantsApi();
-
-        return ResponseEntity.ok(str);
-    }
-
-    @GetMapping("/{userId}")
-    public ResponseEntity<User> getUser(@PathVariable Long userId) {
-        // Fetch user details from the database
-        return ResponseEntity.ok(userService.getUser(userId));
-    }
-
     @PostMapping("/login")
-    public ResponseEntity<User> loginUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
         User user = userService.getUserByEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword());
+        if (user != null) {
+            if(user instanceof Customer)
+                return ResponseEntity.ok(((Customer) user));
+            else
+                return ResponseEntity.ok((Admin) user);
+        }
 
-        if (user != null)
-            return ResponseEntity.ok(user);
 
         return ResponseEntity.notFound().build();
     }
@@ -69,6 +61,19 @@ public class UserController {
     public ResponseEntity<List<User>> getUsers() {
         // Fetch user details from the database
         return ResponseEntity.ok(userService.getUsers());
+    }
+
+    @GetMapping("/test/{userId}")
+    public ResponseEntity<String> callRestaurantsApi(@PathVariable Long userId) {
+        String str = userService.callRestaurantsApi();
+
+        return ResponseEntity.ok(str);
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getUser(@PathVariable Long userId) {
+        // Fetch user details from the database
+        return ResponseEntity.ok(userService.getUser(userId));
     }
 
     @PostMapping
