@@ -50,7 +50,7 @@ public class UserController {
     }
 
     @PostMapping("/forgotPass")
-    public ResponseEntity<User> registerUser(@RequestBody ForgotPassRequest rq) {
+    public ResponseEntity<User> forgotPass(@RequestBody ForgotPassRequest rq) {
         User user = userService.getUserByEmail(rq.getEmail());
         if(user == null)
             return ResponseEntity.notFound().build();

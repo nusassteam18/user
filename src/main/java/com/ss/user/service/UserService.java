@@ -25,10 +25,13 @@ public class UserService {
 
     private final CustomerRepository customerRepository;
 
+    private final EmailService emailService;
+
     @Autowired
-    public UserService(UserRepository userRepository, CustomerRepository customerRepository) {
+    public UserService(UserRepository userRepository, CustomerRepository customerRepository, EmailService emailService) {
         this.userRepository = userRepository;
         this.customerRepository = customerRepository;
+        this.emailService = emailService;
     }
 
     @Autowired
@@ -66,6 +69,9 @@ public class UserService {
 
     public User getUserByEmail(String email) {
         Optional<User> userOptional = userRepository.findUserByEmail(email);
+        if(userOptional.isPresent())
+            emailService.forgotPasswordEmail(email);
+
         return userOptional.orElse(null);
     }
 
