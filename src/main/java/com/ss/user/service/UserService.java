@@ -1,5 +1,6 @@
 package com.ss.user.service;
 
+import com.ss.user.entity.Customer;
 import com.ss.user.repository.CustomerRepository;
 import com.ss.user.requestDTO.RegisterRequest;
 import com.ss.user.entity.User;
@@ -94,6 +95,25 @@ public class UserService {
         updatingUser.setLastName(user.getLastName());
         updatingUser.setPassword(user.getPassword());
         userRepository.save(updatingUser);
+    }
+
+    public void updateUserCustomer(Customer customer){
+        Optional<Customer> userOptional = customerRepository.findById(customer.getUserId());
+
+        if(userOptional.isEmpty())
+            throw new IllegalStateException("User does not exist.");
+
+        Customer updatingUser = userOptional.get();
+        updatingUser.setEmail(customer.getEmail());
+        updatingUser.setFirstName(customer.getFirstName());
+        updatingUser.setLastName(customer.getLastName());
+        updatingUser.setPassword(customer.getPassword());
+        updatingUser.setContactNo(customer.getContactNo());
+        updatingUser.setCreditCardNo(customer.getCreditCardNo());
+        updatingUser.setCreditCardExpiryDate(customer.getCreditCardExpiryDate());
+        updatingUser.setCreditCardSecurityCode(customer.getCreditCardSecurityCode());
+        updatingUser.setHomeAddress(customer.getHomeAddress());
+        customerRepository.save(updatingUser);
     }
 
     public void deleteUser(Long userId) {
