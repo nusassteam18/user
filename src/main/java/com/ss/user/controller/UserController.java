@@ -89,7 +89,7 @@ public class UserController {
     }
 
     @PutMapping("/customer/{userId}")
-    public ResponseEntity<User> updateUserCustomer(@RequestBody Customer customer){
+    public ResponseEntity<Customer> updateUserCustomer(@RequestBody Customer customer){
         userService.updateUserCustomer(customer);
         return ResponseEntity.ok(customer);
     }

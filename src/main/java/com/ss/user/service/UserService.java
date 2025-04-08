@@ -110,6 +110,7 @@ public class UserService {
         updatingUser.setPassword(customer.getPassword());
         updatingUser.setContactNo(customer.getContactNo());
         updatingUser.setCreditCardNo(customer.getCreditCardNo());
+        updatingUser.setCreditCardName(customer.getCreditCardName());
         updatingUser.setCreditCardExpiryDate(customer.getCreditCardExpiryDate());
         updatingUser.setCreditCardSecurityCode(customer.getCreditCardSecurityCode());
         updatingUser.setHomeAddress(customer.getHomeAddress());
