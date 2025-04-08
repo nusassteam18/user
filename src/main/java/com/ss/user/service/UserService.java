@@ -1,6 +1,8 @@
 package com.ss.user.service;
 
+import com.ss.user.entity.Admin;
 import com.ss.user.entity.Customer;
+import com.ss.user.repository.AdminRepository;
 import com.ss.user.repository.CustomerRepository;
 import com.ss.user.requestDTO.RegisterRequest;
 import com.ss.user.entity.User;
@@ -26,12 +28,15 @@ public class UserService {
 
     private final CustomerRepository customerRepository;
 
+    private final AdminRepository adminRepository;
+
     private final EmailService emailService;
 
     @Autowired
-    public UserService(UserRepository userRepository, CustomerRepository customerRepository, EmailService emailService) {
+    public UserService(UserRepository userRepository, CustomerRepository customerRepository, AdminRepository adminRepository, EmailService emailService) {
         this.userRepository = userRepository;
         this.customerRepository = customerRepository;
+        this.adminRepository = adminRepository;
         this.emailService = emailService;
     }
 
@@ -115,6 +120,19 @@ public class UserService {
         updatingUser.setCreditCardSecurityCode(customer.getCreditCardSecurityCode());
         updatingUser.setHomeAddress(customer.getHomeAddress());
         customerRepository.save(updatingUser);
+    }
+
+    public void updateUserAdmin(Admin admin){
+        Optional<Admin> userOptional = adminRepository.findById(admin.getUserId());
+
+        if(userOptional.isEmpty())
+            throw new IllegalStateException("User does not exist.");
+
+        Admin updatingUser = userOptional.get();
+        updatingUser.setFirstName(admin.getFirstName());
+        updatingUser.setLastName(admin.getLastName());
+        updatingUser.setEmail(admin.getEmail());
+        adminRepository.save(updatingUser);
     }
 
     public void deleteUser(Long userId) {
