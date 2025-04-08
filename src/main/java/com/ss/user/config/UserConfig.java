@@ -1,5 +1,6 @@
 package com.ss.user.config;
 
+import com.ss.user.entity.Admin;
 import com.ss.user.repository.AdminRepository;
 import com.ss.user.repository.CustomerRepository;
 import com.ss.user.repository.UserRepository;
@@ -34,6 +35,12 @@ public class UserConfig {
 //
 //            Admin admin = new Admin("sally", "tan", "sally@hotmail.com", "123", 1L);
 //            adminRepository.save(admin);
+
+//              Admin admin2 = new Admin("betty", "tan", "betty@hotmail.com", "123", 2L);
+//              adminRepository.save(admin2);
+//
+//              Admin admin3 = new Admin("charlie", "tan", "charlie@hotmail.com", "123", 3L);
+//              adminRepository.save(admin3);
         };
     }
 
