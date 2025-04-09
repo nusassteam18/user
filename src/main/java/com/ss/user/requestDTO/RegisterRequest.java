@@ -12,6 +12,8 @@ public class RegisterRequest {
 
     private String role;
 
+    public RegisterRequest() {}
+
     public RegisterRequest(String firstName, String lastName, String email, String password, String role) {
         this.firstName = firstName;
         this.lastName = lastName;

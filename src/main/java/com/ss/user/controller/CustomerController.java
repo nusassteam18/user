@@ -2,6 +2,8 @@ package com.ss.user.controller;
 
 import com.ss.user.entity.Customer;
 import com.ss.user.entity.User;
+import com.ss.user.requestDTO.CustomerRegisterRequest;
+import com.ss.user.requestDTO.RegisterRequest;
 import com.ss.user.responseDTO.CustomerTruncatedDTO;
 import com.ss.user.service.CustomerService;
 import com.ss.user.service.UserService;
@@ -9,10 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,5 +42,10 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.getCustomer(userId));
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<CustomerRegisterRequest> registerCust(@RequestBody CustomerRegisterRequest rq) {
+        customerService.createCustomer(rq);
+        return ResponseEntity.ok(rq);
+    }
 
 }
