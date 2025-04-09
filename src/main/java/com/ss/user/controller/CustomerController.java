@@ -1,5 +1,6 @@
 package com.ss.user.controller;
 
+import com.ss.user.entity.Customer;
 import com.ss.user.entity.User;
 import com.ss.user.responseDTO.CustomerTruncatedDTO;
 import com.ss.user.service.CustomerService;
@@ -9,10 +10,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 //@CrossOrigin(origins = "*")
@@ -33,4 +36,12 @@ public class CustomerController {
 
         return ResponseEntity.ok(customerService.getCustomersTruncated());
     }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<Customer> getUser(@PathVariable Long userId) {
+        // Fetch customer details from the database
+        return ResponseEntity.ok(customerService.getCustomer(userId));
+    }
+
+
 }
