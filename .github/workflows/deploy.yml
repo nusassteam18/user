@@ -27,6 +27,16 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml # -B runs in non-interactive (batch) mode
 
+      - name: Zip the deployment package
+        run: |
+          jar_file=$(find target -maxdepth 1 -name '*.jar' -print -quit)
+          if [ -z "$jar_file" ]; then
+            echo "Error: No JAR file found in target/"
+            exit 1
+          fi
+          echo "Zipping $jar_file"
+          zip -j deploy.zip "$jar_file"
+
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
         with:
@@ -36,6 +46,6 @@ jobs:
           environment_name: ${{ secrets.EB_ENVIRONMENT_NAME }}
           region: us-east-1
           version_label: ${{ github.sha }}
-          deployment_package: target/user-0.0.1-SNAPSHOT.jar
+          deployment_package: deploy.zip
           existing_bucket_name: ${{ secrets.EB_BUCKET_NAME }}
-          wait_for_deployment: false # not sure how long it takes to deploy, setting to false here to save minutes
+          wait_for_deployment: true
