@@ -27,25 +27,41 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml # -B runs in non-interactive (batch) mode
 
-      - name: Zip the deployment package
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Set artifact name variable
+        id: artifact_info
+        # This finds the JAR file built by Maven
         run: |
           jar_file=$(find target -maxdepth 1 -name '*.jar' -print -quit)
           if [ -z "$jar_file" ]; then
             echo "Error: No JAR file found in target/"
             exit 1
           fi
-          echo "Zipping $jar_file"
-          zip -j deploy.zip "$jar_file"
+          echo "artifact_path=$jar_file" >> $GITHUB_OUTPUT
+          echo "artifact_filename=$(basename $jar_file)" >> $GITHUB_OUTPUT
 
-      - name: Deploy to Elastic Beanstalk
-        uses: einaregilsson/beanstalk-deploy@v22
-        with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: ${{ secrets.EB_APPLICATION_NAME }}
-          environment_name: ${{ secrets.EB_ENVIRONMENT_NAME }}
-          region: us-east-1
-          version_label: ${{ github.sha }}
-          deployment_package: deploy.zip
-          existing_bucket_name: ${{ secrets.EB_BUCKET_NAME }}
-          wait_for_deployment: true
+      - name: Upload artifact to S3
+        # Use aws s3 cp to upload the JAR with its original name/extension
+        run: |
+          aws s3 cp ${{ steps.artifact_info.outputs.artifact_path }} s3://${{ secrets.EB_BUCKET_NAME }}/${{ secrets.EB_APPLICATION_NAME }}/${{ github.sha }}-${{ steps.artifact_info.outputs.artifact_filename }}
+
+      - name: Create Elastic Beanstalk Application Version
+        run: |
+          aws elasticbeanstalk create-application-version \
+            --application-name "${{ secrets.EB_APPLICATION_NAME }}" \
+            --version-label "${{ github.sha }}" \
+            --description "Commit ${{ github.sha }}" \
+            --source-bundle S3Bucket="${{ secrets.EB_BUCKET_NAME }}",S3Key="${{ secrets.EB_APPLICATION_NAME }}/${{ github.sha }}-${{ steps.artifact_info.outputs.artifact_filename }}" \
+
+      - name: Deploy Application Version
+        run: |
+          aws elasticbeanstalk update-environment \
+            --application-name "${{ secrets.EB_APPLICATION_NAME }}" \
+            --environment-name "${{ secrets.EB_ENVIRONMENT_NAME }}" \
+            --version-label "${{ github.sha }}"
