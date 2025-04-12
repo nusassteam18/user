@@ -38,3 +38,4 @@ jobs:
           version_label: ${{ github.sha }}
           deployment_package: target/user-0.0.1-SNAPSHOT.jar
           existing_bucket_name: ${{ secrets.EB_BUCKET_NAME }}
+          wait_for_deployment: false # not sure how long it takes to deploy, setting to false here to save minutes
