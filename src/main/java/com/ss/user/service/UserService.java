@@ -102,19 +102,6 @@ public class UserService {
         userRepository.save(updatingUser);
     }
 
-    public void updateUserAdmin(Admin admin){
-        Optional<Admin> userOptional = adminRepository.findById(admin.getUserId());
-
-        if(userOptional.isEmpty())
-            throw new IllegalStateException("User does not exist.");
-
-        Admin updatingUser = userOptional.get();
-        updatingUser.setFirstName(admin.getFirstName());
-        updatingUser.setLastName(admin.getLastName());
-        updatingUser.setEmail(admin.getEmail());
-        adminRepository.save(updatingUser);
-    }
-
     public void deleteUser(Long userId) {
         boolean isExist = userRepository.existsById(userId);
 

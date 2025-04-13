@@ -88,13 +88,6 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-
-//    @PutMapping("/admin/{userId}")
-//    public ResponseEntity<Admin> updateUserAdmin(@RequestBody Admin admin){
-//        userService.updateUserAdmin(admin);
-//        return ResponseEntity.ok(admin);
-//    }
-
     @DeleteMapping(path = "{userId}")
     public ResponseEntity<Long> deleteUser(@PathVariable("userId") Long userId) {
         userService.deleteUser(userId);
