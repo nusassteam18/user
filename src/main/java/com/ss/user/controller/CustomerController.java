@@ -48,4 +48,10 @@ public class CustomerController {
         return ResponseEntity.ok(rq);
     }
 
+    @PutMapping("/{userId}")
+    public ResponseEntity<Customer> updateUserCustomer(@RequestBody Customer customer){
+        customerService.updateUserCustomer(customer);
+        return ResponseEntity.ok(customer);
+    }
+
 }

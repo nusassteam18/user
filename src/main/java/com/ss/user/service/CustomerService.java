@@ -52,4 +52,24 @@ public class CustomerService {
         rq.getContactNo(),rq.getCreditCardNo(),rq.getcreditCardName(),rq.getcreditCardExpiryDate(),rq.getcreditCardSecurityCode(),rq.gethomeAddress());
         customerRepository.save(cust);
     }
+
+    public void updateUserCustomer(Customer customer){
+        Optional<Customer> userOptional = customerRepository.findById(customer.getUserId());
+
+        if(userOptional.isEmpty())
+            throw new IllegalStateException("User does not exist.");
+
+        Customer updatingUser = userOptional.get();
+        updatingUser.setEmail(customer.getEmail());
+        updatingUser.setFirstName(customer.getFirstName());
+        updatingUser.setLastName(customer.getLastName());
+        updatingUser.setPassword(customer.getPassword());
+        updatingUser.setContactNo(customer.getContactNo());
+        updatingUser.setCreditCardNo(customer.getCreditCardNo());
+        updatingUser.setCreditCardName(customer.getCreditCardName());
+        updatingUser.setCreditCardExpiryDate(customer.getCreditCardExpiryDate());
+        updatingUser.setCreditCardSecurityCode(customer.getCreditCardSecurityCode());
+        updatingUser.setHomeAddress(customer.getHomeAddress());
+        customerRepository.save(updatingUser);
+    }
 }
