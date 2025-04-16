@@ -58,7 +58,6 @@ jobs:
             --version-label "${{ github.sha }}" \
             --description "Commit ${{ github.sha }}" \
             --source-bundle S3Bucket="${{ secrets.EB_BUCKET_NAME }}",S3Key="${{ secrets.EB_APPLICATION_NAME }}/${{ github.sha }}-${{ steps.artifact_info.outputs.artifact_filename }}" \
-            --no-process # Optional: If you want explicit control, you can add --no-process and trigger processing separately if needed, but usually not necessary. Default is to process.
 
       # --- NEW STEP: Wait for Application Version to be Processed ---
       - name: Wait for Application Version to be Processed
