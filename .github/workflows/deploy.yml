@@ -27,81 +27,25 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml # -B runs in non-interactive (batch) mode
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Set artifact name variable
-        id: artifact_info
-        # This finds the JAR file built by Maven
+      - name: Zip the deployment package
         run: |
           jar_file=$(find target -maxdepth 1 -name '*.jar' -print -quit)
           if [ -z "$jar_file" ]; then
             echo "Error: No JAR file found in target/"
             exit 1
           fi
-          echo "artifact_path=$jar_file" >> $GITHUB_OUTPUT
-          echo "artifact_filename=$(basename $jar_file)" >> $GITHUB_OUTPUT
+          echo "Zipping $jar_file"
+          zip -j deploy.zip "$jar_file"
 
-      - name: Upload artifact to S3
-        # Use aws s3 cp to upload the JAR with its original name/extension
-        run: |
-          aws s3 cp ${{ steps.artifact_info.outputs.artifact_path }} s3://${{ secrets.EB_BUCKET_NAME }}/${{ secrets.EB_APPLICATION_NAME }}/${{ github.sha }}-${{ steps.artifact_info.outputs.artifact_filename }}
-
-      - name: Create Elastic Beanstalk Application Version
-        run: |
-          aws elasticbeanstalk create-application-version \
-            --application-name "${{ secrets.EB_APPLICATION_NAME }}" \
-            --version-label "${{ github.sha }}" \
-            --description "Commit ${{ github.sha }}" \
-            --source-bundle S3Bucket="${{ secrets.EB_BUCKET_NAME }}",S3Key="${{ secrets.EB_APPLICATION_NAME }}/${{ github.sha }}-${{ steps.artifact_info.outputs.artifact_filename }}" \
-
-      # --- NEW STEP: Wait for Application Version to be Processed ---
-      - name: Wait for Application Version to be Processed
-        env:
-          APP_NAME: ${{ secrets.EB_APPLICATION_NAME }}
-          VERSION_LABEL: ${{ github.sha }}
-        run: |
-          echo "Waiting for application version '$VERSION_LABEL' for application '$APP_NAME' to be processed..."
-          MAX_ATTEMPTS=60 # 60 attempts * 10 seconds = 600 seconds (10 minutes) timeout
-          SLEEP_INTERVAL=10 # seconds
-
-          for (( i=1; i<=MAX_ATTEMPTS; i++ )); do
-            # Query the status of the specific application version
-            STATUS=$(aws elasticbeanstalk describe-application-versions \
-              --application-name "$APP_NAME" \
-              --version-labels "$VERSION_LABEL" \
-              --query "ApplicationVersions[0].Status" \
-              --output text)
-
-            echo "Attempt $i/$MAX_ATTEMPTS: Version status is '$STATUS'"
-
-            if [[ "$STATUS" == "PROCESSED" ]]; then
-              echo "Application version is processed."
-              exit 0 # Success
-            elif [[ "$STATUS" == "FAILED" ]]; then
-              echo "Error: Application version processing failed."
-              exit 1 # Failure
-            elif [[ "$STATUS" == "PROCESSING" ]] || [[ "$STATUS" == "UNPROCESSED" ]]; then
-              # Continue waiting
-              sleep $SLEEP_INTERVAL
-            else
-              echo "Warning: Unknown status '$STATUS' encountered. Continuing to wait..."
-              sleep $SLEEP_INTERVAL
-            fi
-          done
-
-          echo "Error: Timeout waiting for application version to be processed."
-          exit 1 # Failure due to timeout
-      # --- End of NEW STEP ---
-
-      - name: Deploy Application Version
-        run: |
-          echo "Deploying application version ${{ github.sha }} to environment ${{ secrets.EB_ENVIRONMENT_NAME }}"
-          aws elasticbeanstalk update-environment \
-            --application-name "${{ secrets.EB_APPLICATION_NAME }}" \
-            --environment-name "${{ secrets.EB_ENVIRONMENT_NAME }}" \
-            --version-label "${{ github.sha }}"
+      - name: Deploy to Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: ${{ secrets.EB_APPLICATION_NAME }}
+          environment_name: ${{ secrets.EB_ENVIRONMENT_NAME }}
+          region: us-east-1
+          version_label: ${{ github.sha }}
+          deployment_package: deploy.zip
+          existing_bucket_name: ${{ secrets.EB_BUCKET_NAME }}
+          wait_for_deployment: false
