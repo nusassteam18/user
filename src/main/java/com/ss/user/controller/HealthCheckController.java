@@ -9,6 +9,6 @@ public class HealthCheckController {
 
     @RequestMapping
     public String healthCheck() {
-        return "OK";
+        return "200 OK";
     }
 }
