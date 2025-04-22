@@ -36,6 +36,12 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.getCustomersTruncated());
     }
 
+    @GetMapping("/{customerId}/truncated")
+    public ResponseEntity<CustomerTruncatedDTO> getCustomersTruncated(@PathVariable Long customerId) {
+
+        return ResponseEntity.ok(customerService.getCustomerTruncated(customerId));
+    }
+
     @GetMapping("/{userId}")
     public ResponseEntity<Customer> getUser(@PathVariable Long userId) {
         // Fetch customer details from the database

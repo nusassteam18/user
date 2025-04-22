@@ -42,6 +42,15 @@ public class CustomerService {
         return customerTruncatedDTOS;
     }
 
+    public CustomerTruncatedDTO getCustomerTruncated(Long customerId) {
+
+        CustomerTruncatedDTO customerTruncatedDTO = customerRepository.findCustomerTruncatedByCustomerId(customerId);
+
+//        log.info("customerTruncatedDTO: {}", customerTruncatedDTO);
+
+        return customerTruncatedDTO;
+    }
+
     public void createCustomer(CustomerRegisterRequest rq){
         Optional<Customer> userOptional = customerRepository.findCustomerByEmail(rq.getEmail());
 

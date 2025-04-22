@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Objects;
@@ -40,16 +39,9 @@ public class UserService {
         this.emailService = emailService;
     }
 
-    @Autowired
-    public RestTemplate restTemplate;
 
-    @Value("${restaurants.url:http://www.google.com}")
+    @Value("${restaurants.url:http://restaurant-service-env.eba-z2rpxyni.us-east-1.elasticbeanstalk.com/restaurants}")
     private String RESTAURANTS_URL;
-
-    public String callRestaurantsApi(){
-        log.info("RESTAURANTS_URL: {}", RESTAURANTS_URL);
-        return restTemplate.getForObject(RESTAURANTS_URL, String.class);
-    }
 
     public List<User> getUsers(){
         return userRepository.findAll();
