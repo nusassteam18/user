@@ -5,6 +5,8 @@ import com.ss.user.entity.Customer;
 import com.ss.user.requestDTO.LoginRequest;
 import com.ss.user.requestDTO.RegisterRequest;
 import com.ss.user.requestDTO.ForgotPassRequest;
+import com.ss.user.responseDTO.LoginAdminResponse;
+import com.ss.user.service.AdminService;
 import com.ss.user.service.UserService;
 import com.ss.user.entity.User;
 import org.slf4j.Logger;
@@ -24,9 +26,12 @@ public class UserController {
 
     private final UserService userService;
 
+    private final AdminService adminService;
+
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, AdminService adminService) {
         this.userService = userService;
+        this.adminService = adminService;
     }
 
     @PostMapping("/login")
@@ -35,8 +40,23 @@ public class UserController {
         if (user != null) {
             if(user instanceof Customer)
                 return ResponseEntity.ok(((Customer) user));
-            else
-                return ResponseEntity.ok((Admin) user);
+            else {
+                Admin admin = (Admin) user;
+                LoginAdminResponse lar = new LoginAdminResponse();
+                lar.setUserId(admin.getUserId());
+                lar.setFirstName(admin.getFirstName());
+                lar.setLastName(admin.getLastName());
+                lar.setEmail(admin.getEmail());
+                lar.setPassword(admin.getPassword());
+                lar.setRole(admin.getRole());
+                lar.setRestaurantId(admin.getRestaurantId());
+
+                String restaurantName = adminService.getRestaurantName(admin.getRestaurantId());
+                if (!restaurantName.isEmpty())
+                    lar.setRestaurantName(restaurantName);
+
+                return ResponseEntity.ok(lar);
+            }
         }
 
 
@@ -61,13 +81,6 @@ public class UserController {
     public ResponseEntity<List<User>> getUsers() {
         // Fetch user details from the database
         return ResponseEntity.ok(userService.getUsers());
-    }
-
-    @GetMapping("/test/{userId}")
-    public ResponseEntity<String> callRestaurantsApi(@PathVariable Long userId) {
-        String str = userService.callRestaurantsApi();
-
-        return ResponseEntity.ok(str);
     }
 
     @GetMapping("/{userId}")
